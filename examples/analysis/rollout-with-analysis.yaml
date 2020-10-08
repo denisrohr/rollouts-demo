@@ -31,7 +31,7 @@ spec:
         app: canary-demo
     spec:
       containers:
-      - image: argoproj/rollouts-demo:bad-yellow
+      - image: argoproj/rollouts-demo:bad-green
         imagePullPolicy: Always
         name: canary-demo
         ports:
