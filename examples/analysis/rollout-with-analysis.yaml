@@ -14,13 +14,12 @@ spec:
         templateName: success-rate
         args:
         - name: ingress
-          value: canary-demo
+          value: canary-demo-preview
       canaryService: canary-demo-preview
       steps:
       - setWeight: 40
       - pause:
           duration: 120
-      - pause: {}
       - setWeight: 60
       - pause:
           duration: 10
@@ -33,7 +32,7 @@ spec:
         app: canary-demo
     spec:
       containers:
-      - image: argoproj/rollouts-demo:red
+      - image: argoproj/rollouts-demo:bad-orange
         imagePullPolicy: Always
         name: canary-demo
         ports:
