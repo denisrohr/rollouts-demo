@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-url: http://$host/oauth2/auth
 spec:
   rules:
-  - host: canary-preview.dev.argoproj.io
+  - host: canary-preview.democluster.local
     http:
       paths:
       - path: /
