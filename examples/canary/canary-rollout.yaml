@@ -3,7 +3,7 @@ kind: Rollout
 metadata:
   name: canary-demo
 spec:
-  replicas: 3
+  replicas: 5
   revisionHistoryLimit: 1
   selector:
     matchLabels:
