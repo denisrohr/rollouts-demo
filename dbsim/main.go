@@ -85,7 +85,6 @@ func main() {
 		close(done)
 	}()
 
-	cpuBurn(done, numCPUBurn)
 	log.Printf("Started server on %s", listenAddr)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Could not listen on %s: %v\n", listenAddr, err)
