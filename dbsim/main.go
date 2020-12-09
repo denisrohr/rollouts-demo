@@ -109,28 +109,9 @@ func getColor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var request []colorParameters
-	if len(requestBody) > 0 && string(requestBody) != `"[]"` {
-		err = json.Unmarshal(requestBody, &request)
-		if err != nil {
-			w.WriteHeader(500)
-			log.Printf("%s: %v", string(requestBody), err.Error())
-			fmt.Fprintf(w, err.Error())
-			return
-		}
-	}
-
 	colorToReturn := randomColor()
 	if color != "" {
 		colorToReturn = color
-	}
-
-	var colorParams colorParameters
-	for i := range request {
-		cp := request[i]
-		if cp.Color == colorToReturn {
-			colorParams = cp
-		}
 	}
 
 	printColor(colorToReturn, w, true)
