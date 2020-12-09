@@ -100,14 +100,6 @@ type colorParameters struct {
 }
 
 func getColor(w http.ResponseWriter, r *http.Request) {
-	requestBody, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(500)
-		log.Println(err.Error())
-		fmt.Fprintf(w, err.Error())
-		return
-	}
-
 	colorToReturn := randomColor()
 	if color != "" {
 		colorToReturn = color
