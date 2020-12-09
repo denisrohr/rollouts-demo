@@ -37,8 +37,6 @@ var (
 		"blue",
 		"purple",
 	}
-	envErrorRate = os.Getenv("ERROR_RATE")
-	envLatency   = os.Getenv("LATENCY")
 )
 
 func main() {
@@ -138,42 +136,7 @@ func getColor(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if envLatency != "" {
-		latency, err := strconv.Atoi(envLatency)
-		if err != nil {
-			w.WriteHeader(500)
-			log.Printf("%s: %v", string(requestBody), err.Error())
-			fmt.Fprintf(w, err.Error())
-			return
-		}
-		log.Printf("Delaying %s %ds", colorToReturn, latency)
-		time.Sleep(time.Duration(latency) * time.Second)
-	} else if colorParams.DelayProbability != nil && *colorParams.DelayProbability > 0 && *colorParams.DelayProbability >= rand.Intn(100) {
-		log.Printf("Delaying %s %ds", colorToReturn, colorParams.DelayLength)
-		time.Sleep(time.Duration(colorParams.DelayLength) * time.Second)
-	}
-
-	returnSuccess := true
-	if envErrorRate != "" {
-		errorRate, err := strconv.Atoi(envErrorRate)
-		if err != nil {
-			w.WriteHeader(500)
-			log.Printf("%s: %v", string(requestBody), err.Error())
-			fmt.Fprintf(w, err.Error())
-			return
-		}
-		returnSuccess = rand.Intn(100) >= errorRate
-	} else if colorParams.Return500Probability != nil && *colorParams.Return500Probability > 0 && *colorParams.Return500Probability >= rand.Intn(100) {
-		returnSuccess = false
-	}
-	colorFromDB := getColorFromDB()
-	if colorFromDB != colorToReturn {
-		w.WriteHeader(500)
-		log.Printf("Color from DB: %s doesnt match picked color: %s", colorFromDB, colorToReturn)
-		fmt.Fprintf(w, "Color from DB: %s doesnt match picked color: %s", colorFromDB, colorToReturn)
-		return
-	}
-	printColor(colorToReturn, w, returnSuccess)
+	printColor(colorToReturn, w, true)
 }
 
 func printColor(colorToPrint string, w http.ResponseWriter, healthy bool) {
@@ -204,51 +167,6 @@ func printColor(colorToPrint string, w http.ResponseWriter, healthy bool) {
 	}
 }
 
-func getColorFromDB() string {
-	resp, err := http.Get("http://rollouts-demo-db/color")
-	if err != nil {
-		// handle error
-		log.Printf("%s: %v", "http://rollouts-demo-db/color", err.Error())
-		return "UnknownColor"
-	}
-	if len(resp.Body) > 0 {
-		return resp.Body
-	}
-	return "UnknownColor"
-}
-
 func randomColor() string {
 	return colors[rand.Int()%len(colors)]
-}
-
-func cpuBurn(done <-chan bool, numCPUBurn string) {
-	if numCPUBurn == "" {
-		return
-	}
-	var numCPU int
-	if numCPUBurn == "all" {
-		numCPU = runtime.NumCPU()
-	} else {
-		num, err := strconv.Atoi(numCPUBurn)
-		if err != nil {
-			log.Fatal(err)
-		}
-		numCPU = num
-	}
-	log.Printf("Burning %d CPUs", numCPU)
-	noop := func() {}
-	for i := 0; i < numCPU; i++ {
-		go func(cpu int) {
-			log.Printf("Burning CPU #%d", cpu)
-			for {
-				select {
-				case <-done:
-					log.Printf("Stopped CPU burn #%d", cpu)
-					return
-				default:
-					noop()
-				}
-			}
-		}(i)
-	}
 }
